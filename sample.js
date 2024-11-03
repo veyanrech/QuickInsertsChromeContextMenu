@@ -3,7 +3,10 @@ chrome.contextMenus.onClicked.addListener(genericOnClick);
 
 // A generic onclick callback function.
 function genericOnClick(info) {
-  console.log(info);
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+      console.log(tabs)
+      chrome.tabs.sendMessage(tabs[0].id, {action: "open_dialog_box"}, function(response) {});  
+  });
 }
 
 chrome.runtime.onInstalled.addListener(function () {
@@ -38,20 +41,6 @@ chrome.runtime.onInstalled.addListener(function () {
     title: 'Edit items',
     id: 'edit_items'
   });
-  chrome.contextMenus.create({
-    title: 'Items',
-    id: 'items'
-  });
-  
 
-  // Intentionally create an invalid item, to show off error checking in the
-  // create callback.
-  chrome.contextMenus.create(
-    { title: 'Oops', parentId: 999, id: 'errorItem' },
-    function () {
-      if (chrome.runtime.lastError) {
-        console.log('Got expected error: ' + chrome.runtime.lastError.message);
-      }
-    }
-  );
 });
+
