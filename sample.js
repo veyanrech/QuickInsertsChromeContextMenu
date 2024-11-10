@@ -10,6 +10,9 @@ function genericOnClick(info) {
 }
 
 chrome.runtime.onInstalled.addListener(function () {
+
+  dbInit();
+
   // Create one test item for each context type.
   let contexts = [
     {'selection':{
@@ -35,6 +38,12 @@ chrome.runtime.onInstalled.addListener(function () {
       contexts: [keys[0]],
       id: id
     });
+
+    // chrome.contextMenus.create({
+    //   title: 'Edit items',
+    //   id: 'edit_items_' + keys[0],
+    //   contexts: [keys[0]]
+    // });
   }
 
   chrome.contextMenus.create({
@@ -44,3 +53,46 @@ chrome.runtime.onInstalled.addListener(function () {
 
 });
 
+function dbInit() {
+  chrome.storage.local.get("FastPastDBName", (result) => {
+    let dbName = result.dbName;
+
+    if (!dbName) {
+        dbName = generateUniqueDBName();
+        saveDBName(dbName);
+    }
+
+    initializeDatabase(dbName);
+  });
+}
+// Function to generate a unique name (using a timestamp here for simplicity)
+function generateUniqueDBName() {
+  return "FastPast_" + Date.now();
+}
+
+// Save the database name in Chrome storage
+function saveDBName(dbName) {
+  chrome.storage.local.set({ dbName }, () => {
+      console.log("Database name saved:", dbName);
+  });
+}
+
+function initializeDatabase(dbName) {
+  const request = indexedDB.open(dbName, 1);
+
+  request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains("FastPastObjectStore")) {
+          db.createObjectStore("FastPastObjectStore", { keyPath: "id", autoIncrement: true });
+      }
+      console.log("IndexedDB initialized with unique name and object store created.");
+  };
+
+  request.onsuccess = () => {
+      console.log("Database opened successfully with name:", dbName);
+  };
+
+  request.onerror = (error) => {
+      console.error("Error opening database:", error);
+  };
+}
