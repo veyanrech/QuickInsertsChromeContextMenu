@@ -133,6 +133,28 @@ function addStyles() {
         background-color: #f0f0f0;
         transition: background-color 0.3s;
     }
+
+    .fast-past-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+    }
+
+    .fast-past-dialog {
+        position: fixed;
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+    }
     `
 
     document.head.appendChild(style);
@@ -177,26 +199,11 @@ function showDialog() {
 
     // Create a div element for the dialog background
     const dialogOverlay = document.createElement("div");
-    dialogOverlay.style.position = "fixed";
-    dialogOverlay.style.top = "0";
-    dialogOverlay.style.left = "0";
-    dialogOverlay.style.width = "100%";
-    dialogOverlay.style.height = "100%";
-    dialogOverlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-    dialogOverlay.style.zIndex = "9999";
+    dialogOverlay.classList.add("fast-past-overlay");
   
     // Create the dialog box
     const dialogBox = document.createElement("div");
-    dialogBox.style.position = "fixed";
-    dialogBox.style.top = "25%";
-    dialogBox.style.left = "50%";
-    dialogBox.style.transform = "translate(-50%, -50%)";
-    dialogBox.style.padding = "20px";
-    dialogBox.style.backgroundColor = "white";
-    dialogBox.style.borderRadius = "8px";
-    dialogBox.style.boxShadow = "0px 0px 10px rgba(0, 0, 0, 0.2)";
-    dialogBox.style.zIndex = "10000";
-    dialogBox.innerText = "Items to paste";
+    dialogBox.classList.add("fast-past-dialog");
   
     // Add a close button
     const closeButton = document.createElement("button");
