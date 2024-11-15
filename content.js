@@ -125,14 +125,6 @@ function addStyles() {
     }
     const style = document.createElement('style');
     style.innerHTML = `
-    .fast-past-hoverable:hover {
-        cursor: pointer;
-        padding: 5px;
-        margin: 5px;
-        border-radius: 5px;
-        background-color: #f0f0f0;
-        transition: background-color 0.3s;
-    }
 
     .fast-past-overlay {
         position: fixed;
@@ -142,6 +134,21 @@ function addStyles() {
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
         z-index: 9999;
+        font-family: Arial, sans-serif;
+    }
+
+    .fast-past-overlay * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    .fast-past-hoverable:hover {
+        padding: 5px;
+        margin: 5px;
+        border-radius: 5px;
+        background-color: #f0f0f0;
+        transition: background-color 0.3s;
     }
 
     .fast-past-dialog {
@@ -155,6 +162,48 @@ function addStyles() {
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
         z-index: 10000;
     }
+
+    .fast-past-notification {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .fast-past-close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+    }
+
+    .fast-past-close-button:hover {
+        transform: scale(1.1);
+    }
+
+    .fast-past-tags-column {
+        padding: 10px;
+        border-right: 1px solid #ccc;
+        width: 30%;
+    }
+
+    .fast-past-items-column {
+        padding: 10px;
+        width: 70%;
+    }
+
+    .fast-past-li-item {
+        padding: 5px;
+        margin: 5px;
+        border-radius: 5px;
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+
     `
 
     document.head.appendChild(style);
@@ -206,9 +255,9 @@ function showDialog() {
     dialogBox.classList.add("fast-past-dialog");
   
     // Add a close button
-    const closeButton = document.createElement("button");
-    closeButton.innerText = "❌";
-    closeButton.style.marginTop = "10px";
+    const closeButton = document.createElement("div");
+    closeButton.classList.add("fast-past-close-button");
+    closeButton.appendChild(createIcon("close", 24, 24));
 
     const remover = () => {
         dialogOverlay.removeChild(dialogBox);
@@ -228,9 +277,7 @@ function showDialog() {
 
 
     const tagsColumn = document.createElement("div");
-    tagsColumn.style.padding = "10px";
-    tagsColumn.style.borderRight = "1px solid #ccc";
-    tagsColumn.style.width = "30%";
+    tagsColumn.className = "fast-past-tags-column";
 
     const tagsColumnTitle = document.createElement("h3");
     tagsColumnTitle.innerText = "Tags";
@@ -241,8 +288,7 @@ function showDialog() {
     tagsColumn.appendChild(tagsList);
 
     const itemsColums = document.createElement("div");
-    itemsColums.style.padding = "10px";
-    itemsColums.style.width = "70%";
+    itemsColums.classList.add("fast-past-items-column");
 
     const itemsColumnTitle = document.createElement("h3");
     itemsColumnTitle.innerText = "Items";
@@ -258,7 +304,35 @@ function showDialog() {
     dialogBox.appendChild(tagsAndItemsContainer);
 
     RenderCachedItems(focusedInput, tagsList, itemsList,remover);
-  }
+  
+}
+
+function addNewSomethingButton(ulPlace, text, callback) {
+    const newTagLi = document.createElement("li");
+    
+    newTagLi.classList.add("fast-past-li-item","fast-past-new-item");
+    newTagLi.innerText = text || "Add new";
+
+    if (callback) {
+        newTagLi.onclick = callback;
+    } else {
+        newTagLi.onclick = () => {
+            const newTagName = prompt("Enter new tag name");
+            if (newTagName) {
+                cachedData.tags.push({
+                    tag_name: newTagName,
+                    tag_id: cachedData.tags.length + 1,
+                    items: []
+                });
+                ulPlace.innerHTML = "";
+                RenderCachedItems(focusedInput, ulPlace, itemsList,remover);
+            }
+        }
+    }
+
+    ulPlace.appendChild(newTagLi);
+    return newTagLi;
+}
 
   function RenderCachedItems(focusedInput, tagsUl, itemsUl, remover) {
     //render all tags,
@@ -267,6 +341,7 @@ function showDialog() {
 
     cachedData.tags.forEach(tag => {
       const tagLi = document.createElement("li");
+      tagLi.classList.add("fast-past-li-item");
       tagLi.innerText = tag.tag_name;
 
       tagLi.onclick = () => {
@@ -286,9 +361,14 @@ function showDialog() {
 
   function renderPasteItems(placeToAppend,focusedInput,valueText,remover) {
     const itemLi = document.createElement("li");
+    
+    itemLi.classList.add("fast-past-li-item");
     itemLi.innerText = valueText;
     itemLi.onclick = () => pasteClickedItemIntoFocusedInput(focusedInput, valueText,remover);
     itemLi.classList.add("fast-past-hoverable");
+    
+
+
     placeToAppend.appendChild(itemLi);
   }
 
@@ -301,14 +381,7 @@ function showDialog() {
 
 function showRightBottomNotification(text) {
     const notification = document.createElement("div");
-    notification.style.position = "fixed";
-    notification.style.bottom = "10px";
-    notification.style.right = "10px";
-    notification.style.padding = "10px";
-    notification.style.backgroundColor = "#4CAF50";
-    notification.style.color = "#fff";
-    notification.style.borderRadius = "5px";
-    notification.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.2)";
+    notification.classList.add("fast-past-notification");
     notification.innerText = text || "FastPast: Item copied to clipboard";
   
     document.body.appendChild(notification);
@@ -318,3 +391,46 @@ function showRightBottomNotification(text) {
     }, 1500);
 }
 
+const iconspaths = {
+    "delete" : `<path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M20.5 6H3.49988" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5M18.8334 8.5L18.6334 11.5" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M9.5 11L10 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M14.5 11L14 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>`,
+
+    'edit':`<path d="M14.3601 4.07866L15.2869 3.15178C16.8226 1.61607 19.3125 1.61607 20.8482 3.15178C22.3839 4.68748 22.3839 7.17735 20.8482 8.71306L19.9213 9.63993M14.3601 4.07866C14.3601 4.07866 14.4759 6.04828 16.2138 7.78618C17.9517 9.52407 19.9213 9.63993 19.9213 9.63993M14.3601 4.07866L12 6.43872M19.9213 9.63993L14.6607 14.9006L11.5613 18L11.4001 18.1612C10.8229 18.7383 10.5344 19.0269 10.2162 19.2751C9.84082 19.5679 9.43469 19.8189 9.00498 20.0237C8.6407 20.1973 8.25352 20.3263 7.47918 20.5844L4.19792 21.6782M4.19792 21.6782L3.39584 21.9456C3.01478 22.0726 2.59466 21.9734 2.31063 21.6894C2.0266 21.4053 1.92743 20.9852 2.05445 20.6042L2.32181 19.8021M4.19792 21.6782L2.32181 19.8021M2.32181 19.8021L3.41556 16.5208C3.67368 15.7465 3.80273 15.3593 3.97634 14.995C4.18114 14.5653 4.43213 14.1592 4.7249 13.7838C4.97308 13.4656 5.26166 13.1771 5.83882 12.5999L8.5 9.93872" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>`,
+
+    'add' : `<path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/><path d="M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>`,
+
+    'close': `<path d="M14.5 9.50002L9.5 14.5M9.49998 9.5L14.5 14.5" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/><path d="M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>`
+}
+
+function createIcon(iconName, wsize, hsize) {
+
+    const icons = {
+        "edit": `<svg width="${wsize}px" height="${hsize}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${iconspaths['edit']}</svg>`,
+        
+        "delete": `<svg width="${wsize}px" height="${hsize}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${iconspaths["delete"]}</svg>`,
+        
+        "add": `<svg width="${wsize}px" height="${hsize}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"${iconspaths['add']}></svg>`,
+        
+        "close": `<svg width="${wsize}px" height="${hsize}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${iconspaths['close']}</svg>`
+    }
+
+    const icon = document.createElement("i");
+    icon.className = "material-icons";
+    icon.innerHTML = icons[iconName];
+    return icon;
+}
+
+function insideliTextComponent(liparent, id, text, childComponents) {
+    
+    const lidiv = document.createElement("div");
+    lidiv.id = id;
+
+    return ;
+}
+
+function editButtonComponent(id, callback) {}
+
+function deleteButtonComponent(id, callback) {}
