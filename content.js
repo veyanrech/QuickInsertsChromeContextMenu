@@ -152,15 +152,17 @@ function addStyles() {
     }
 
     .fast-past-dialog {
-        position: fixed;
-        top: 25%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        position: relative;
+        // top: 25%;?
+        // left: 50%
+        // transform: translate(-50%, -50%);
         padding: 20px;
         background-color: white;
         border-radius: 8px;
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
         z-index: 10000;
+        margin: 10% auto;
+        max-width: 800px;
     }
 
     .fast-past-notification {
@@ -189,11 +191,15 @@ function addStyles() {
         padding: 10px;
         border-right: 1px solid #ccc;
         width: 30%;
+        overflow-y: auto;
+        max-height: calc(100vh - 200px);
     }
 
     .fast-past-items-column {
         padding: 10px;
         width: 70%;
+        overflow-y: auto;
+        max-height: calc(100vh - 200px);
     }
 
     .fast-past-li-item {
@@ -275,35 +281,58 @@ function showDialog() {
     const tagsAndItemsContainer = document.createElement("div");
     tagsAndItemsContainer.style.display = "flex";
 
-
     const tagsColumn = document.createElement("div");
     tagsColumn.className = "fast-past-tags-column";
 
-    const tagsColumnTitle = document.createElement("h3");
-    tagsColumnTitle.innerText = "Tags";
-    tagsColumn.appendChild(tagsColumnTitle);
+    tagsColumn.appendChild(createAddNewButton("Tags", () => {
+        const newTagName = prompt("Enter new tag name");
+        if (newTagName) {
+            
+            cachedData.tags.push({
+                tag_name: newTagName,
+                tag_id: cachedData.tags.length + 1,
+                items: []
+            });
+
+            renderClosure();
+        }
+    }));
 
     const tagsList = document.createElement("ul");
     tagsList.style.listStyle = "none";
     tagsColumn.appendChild(tagsList);
 
-    const itemsColums = document.createElement("div");
-    itemsColums.classList.add("fast-past-items-column");
+    const itemsColumn = document.createElement("div");
+    itemsColumn.classList.add("fast-past-items-column");
 
-    const itemsColumnTitle = document.createElement("h3");
-    itemsColumnTitle.innerText = "Items";
-    itemsColums.appendChild(itemsColumnTitle);
+    itemsColumn.appendChild(createAddNewButton("Items", () => {
+        const newItemValue = prompt("Enter new item value");
+        if (newItemValue) {
+            cachedData.tags[0].items.push({
+                value: newItemValue,
+                id: cachedData.tags[0].items.length + 1
+            });
+            renderClosure();
+        }
+    }));
 
     const itemsList = document.createElement("ul");
     itemsList.style.listStyle = "none";
-    itemsColums.appendChild(itemsList);
+    itemsColumn.appendChild(itemsList);
 
     tagsAndItemsContainer.appendChild(tagsColumn);
-    tagsAndItemsContainer.appendChild(itemsColums);
+    tagsAndItemsContainer.appendChild(itemsColumn);
 
     dialogBox.appendChild(tagsAndItemsContainer);
 
-    RenderCachedItems(focusedInput, tagsList, itemsList,remover);
+    const renderClosure = () => {
+        const f = focusedInput;
+        const t = tagsList;
+        const i = itemsList;
+        RenderCachedItems(f, t, i, remover);
+    }
+
+    RenderCachedItems(focusedInput, tagsList, itemsList, remover);
   
 }
 
@@ -315,19 +344,6 @@ function addNewSomethingButton(ulPlace, text, callback) {
 
     if (callback) {
         newTagLi.onclick = callback;
-    } else {
-        newTagLi.onclick = () => {
-            const newTagName = prompt("Enter new tag name");
-            if (newTagName) {
-                cachedData.tags.push({
-                    tag_name: newTagName,
-                    tag_id: cachedData.tags.length + 1,
-                    items: []
-                });
-                ulPlace.innerHTML = "";
-                RenderCachedItems(focusedInput, ulPlace, itemsList,remover);
-            }
-        }
     }
 
     ulPlace.appendChild(newTagLi);
@@ -339,13 +355,37 @@ function addNewSomethingButton(ulPlace, text, callback) {
     //render all items of the first tag
     //add event listeners to item to paste it into ficused input
 
+    [tagsUl, itemsUl].forEach(ul => {
+        const ulitems = ul;
+        if (!ulitems) {
+            return;
+        }
+        try {
+            const _items = ulitems.querySelectorAll(".fast-past-li-item");
+            if (!_items) {
+                return;
+            }
+            _items.forEach(item => {
+                ul.removeChild(item);
+            });   
+        } catch (error) {
+            console.error("Error removing items", error);
+        }
+    })
+
     cachedData.tags.forEach(tag => {
       const tagLi = document.createElement("li");
       tagLi.classList.add("fast-past-li-item");
       tagLi.innerText = tag.tag_name;
 
       tagLi.onclick = () => {
-        itemsUl.innerHTML = "";
+        //remove childs items
+        
+        const items = itemsUl.querySelectorAll(".fast-past-li-item")
+        items.forEach(item => {
+            itemsUl.removeChild(item);
+        });
+        
         tag.items.forEach(item => {
             renderPasteItems(itemsUl,focusedInput,item.value,remover);
         });
@@ -357,6 +397,7 @@ function addNewSomethingButton(ulPlace, text, callback) {
     cachedData.tags[0].items.forEach(item => {
         renderPasteItems(itemsUl,focusedInput,item.value,remover);
     });
+
   }
 
   function renderPasteItems(placeToAppend,focusedInput,valueText,remover) {
@@ -412,7 +453,7 @@ function createIcon(iconName, wsize, hsize) {
         
         "delete": `<svg width="${wsize}px" height="${hsize}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${iconspaths["delete"]}</svg>`,
         
-        "add": `<svg width="${wsize}px" height="${hsize}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"${iconspaths['add']}></svg>`,
+        "add": `<svg width="${wsize}px" height="${hsize}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${iconspaths['add']}></svg>`,
         
         "close": `<svg width="${wsize}px" height="${hsize}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">${iconspaths['close']}</svg>`
     }
@@ -434,3 +475,37 @@ function insideliTextComponent(liparent, id, text, childComponents) {
 function editButtonComponent(id, callback) {}
 
 function deleteButtonComponent(id, callback) {}
+
+function createAddNewButton(headingText, callback) {
+    const container = document.createElement('div');
+    container.style.display = "flex";
+
+    // First child div
+    const firstDiv = document.createElement('div');
+    firstDiv.style.alignItems = "center";
+    firstDiv.style.display = "flex";
+
+    const heading = document.createElement('h3');
+    heading.textContent = headingText;
+    firstDiv.appendChild(heading);
+
+    // Second child div
+    const secondDiv = document.createElement('div');
+    
+    secondDiv.style.alignItems = "center";
+    secondDiv.style.display = "flex";
+    secondDiv.style.marginLeft = "4px";
+    secondDiv.style.cursor = "pointer";
+    secondDiv.style.padding = "4px 0px";
+
+    secondDiv.appendChild(createIcon("add", 24, 24));
+
+    // Append both divs to the container
+    container.appendChild(firstDiv);
+    container.appendChild(secondDiv);
+
+    secondDiv.onclick = callback;
+
+    // Append the container to the document body or any desired parent element
+    return container
+}
