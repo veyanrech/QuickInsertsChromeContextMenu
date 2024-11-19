@@ -44,12 +44,12 @@ let contentUtils = {};
     
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
-                if (!db.objectStoreNames.contains("FastPastObjectStore_tags")) {
-                    db.createObjectStore("FastPastObjectStore_tags", { keyPath: "id", autoIncrement: true });
+                if (!db.objectStoreNames.contains("Tags")) {
+                    db.createObjectStore("Tags", { keyPath: "id", autoIncrement: true });
                 }
 
-                if (!db.objectStoreNames.contains("FastPastObjectStore_itmes")) {
-                    db.createObjectStore("FastPastObjectStore_items", { keyPath: "id", autoIncrement: true });
+                if (!db.objectStoreNames.contains("Items")) {
+                    db.createObjectStore("Items", { keyPath: "id", autoIncrement: true });
                 }
             };
     
@@ -85,6 +85,18 @@ let contentUtils = {};
         await tx.complete;
     }
 
+    DBInstance.prototype.getAllData = async function(objectStorage) {
+        const db = this.db;
+        const tx = db.transaction(objectStorage, "readonly");
+        const store = tx.objectStore(objectStorage);
+        const request = store.getAll();
+    
+        request.onsuccess = () => console.log("Data retrieved:", request.result);
+        request.onerror = () => console.error("Error retrieving data:", request.error);
+    
+        await tx.complete;
+    }
+
     DBInstance.prototype.deleteData = async function(objectStorage, id) {
         const db = this.db;
         const tx = db.transaction(objectStorage, "readwrite");
@@ -93,6 +105,18 @@ let contentUtils = {};
     
         request.onsuccess = () => console.log("Data deleted:", id);
         request.onerror = () => console.error("Error deleting data:", request.error);
+    
+        await tx.complete;
+    }
+
+    DBInstance.prototype.updateData = async function(objectStorage, data) {
+        const db = this.db;
+        const tx = db.transaction(objectStorage, "readwrite");
+        const store = tx.objectStore(objectStorage);
+        const request = store.put(data);
+    
+        request.onsuccess = () => console.log("Data updated:", request.result);
+        request.onerror = () => console.error("Error updating data:", request.error);
     
         await tx.complete;
     }
@@ -508,4 +532,62 @@ function createAddNewButton(headingText, callback) {
 
     // Append the container to the document body or any desired parent element
     return container
+}
+
+function tagModel(id, name) {
+    return {
+        Id: id || 0,
+        Name: name || ""
+    }
+}
+
+class Tags {
+    
+    constructor(db) {
+        this.tagsCache = [];
+        db
+    }
+
+    addTag(tag) {
+        this.tagsCache.push(tag);
+    }
+
+    removeTag(tag) {
+        this.tagsCache = this.tagsCache.filter(t => t !== tag);
+    }
+}
+
+function itemsModel(id,v,tid){
+    return {
+        Value: v || "",
+        TagId: tid || 0,
+        Id: id || 0,
+    }
+}
+
+class Items {
+    constructor(db) {
+        this.itemsCache = [];
+    }
+
+    addItem(item) {
+        this.itemsCache.push(item);
+    }
+
+    removeItem(item) {
+        this.itemsCache = this.itemsCache.filter(i => i !== item);
+    }
+}
+
+class FastPastDB {
+    constructor(db) {
+        this.db = db;
+        this.tags = new Tags(db);
+        this.items = new Items(db);
+    }
+}
+
+function CachedObject() {
+    this.tags = [];
+    this.items = [];
 }
