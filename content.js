@@ -6,7 +6,7 @@ let contentUtils = {};
 
     let singleton = null;
 
-    async function accessDatabase() {
+    async function accessDatabase(_dbname) {
         let res = null;
         try {
             res = await chrome.storage.local.get("FastPastDBName");
@@ -119,6 +119,27 @@ let contentUtils = {};
         request.onerror = () => console.error("Error updating data:", request.error);
     
         await tx.complete;
+    }
+
+    DBInstance.prototype.getLastIndexOfStorage = async function(objectStorage) {
+        const db = this.db;
+        const tx = db.transaction(objectStorage, "readonly");
+        const store = tx.objectStore(objectStorage);
+        const request = store.getAllKeys();
+    
+        let lastIndex = 0;
+
+        request.onsuccess = () => {
+            const keys = request.result;
+            if (keys.length > 0) {
+                lastIndex = keys[keys.length - 1];
+            }
+        };
+        request.onerror = () => console.error("Error getting last index of storage:", request.error);
+    
+        await tx.complete;
+
+        return lastIndex;
     }
 
     retObj.DBInstance = DBInstance;
@@ -241,34 +262,104 @@ function addStyles() {
     cssWasAdded = true;
 }
 
-const cachedData = {
-    tags: [
-        {
-            tag_name: "Personal Data",
-            tag_id: 1,
-            items: [
-                {
-                    value: "Mikhail",
-                    id: 1
-                },
-                {
-                    value: "Cherniaev",
-                    id: 2
-                },
-                {
-                    value: "chernmisha@gmail.com",
-                    id: 3
-                }, {
-                    value: "https://www.linkedin.com/in/mikhail-i-cherniaev/",
-                    id: 4
-                }, {
-                    value: "+12026963640",
-                    id: 5
-                }
-            ]
-        }
-    ],
-};
+function tagModel(id, name) {
+    return {
+        Id: id || 0,
+        Name: name || "Tag"
+    }
+}
+
+class Tags {
+    
+    #_db = null;
+
+    /**
+     * 
+     * @param {DBInstance} db 
+     */
+    constructor(db) {
+        this._db = db;
+        this.tagsCache = [];
+    }
+
+    addTag(tagValue) {
+        this._db.getLastIndexOfStorage("Tags");
+        this._db.addData("Tags", tagModel(null, tagValue));
+    }
+
+    removeTag(tagID) {
+        //remove all items with tagID
+    }
+
+    updateTag(tagID) {
+        //update tag name
+    }
+
+    getTagById(tagID) {}
+
+    async getAllTags() {
+        this._db.getAllData("Tags");
+    }
+}
+
+function itemsModel(id,v,tid){
+    return {
+        Value: v || "",
+        TagId: tid || 0,
+        Id: id || 0,
+    }
+}
+
+class Items {
+
+    #_db = null;
+
+    /**
+     * 
+     * @param {DBInstance} db 
+     */
+    constructor(db) {
+        this._db = db;
+        this.itemsCache = [];
+    }
+
+    addItem(itemValue) {
+       
+    }
+
+    removeItem(item_id) {
+        
+    }
+
+    updateItem(tag_id, item_id, value) {
+
+    }
+
+    getItemsByTagId(tag_id) {
+
+    }
+
+    getItemById(id) {
+
+    }
+}
+
+class FastPastDB {
+
+    #db = null;
+
+    /**
+     * 
+     * @param {DBInstance} db 
+     */
+    constructor(db) {
+        this.db = db;
+        this.tags = new Tags(db);
+        this.items = new Items(db);
+    }
+}
+
+const Data = new FastPastDB(contentUtils.DBInstance);
 
 const $ = document.querySelector.bind(document);
 
@@ -312,11 +403,13 @@ function showDialog() {
         const newTagName = prompt("Enter new tag name");
         if (newTagName) {
             
-            cachedData.tags.push({
-                tag_name: newTagName,
-                tag_id: cachedData.tags.length + 1,
-                items: []
-            });
+            // cachedData.tags.push({
+            //     tag_name: newTagName,
+            //     tag_id: cachedData.tags.length + 1,
+            //     items: []
+            // });
+
+            Data.tags.addTag(newTagName);
 
             renderClosure();
         }
@@ -332,10 +425,13 @@ function showDialog() {
     itemsColumn.appendChild(createAddNewButton("Items", () => {
         const newItemValue = prompt("Enter new item value");
         if (newItemValue) {
-            cachedData.tags[0].items.push({
-                value: newItemValue,
-                id: cachedData.tags[0].items.length + 1
-            });
+            // cachedData.tags[0].items.push({
+            //     value: newItemValue,
+            //     id: cachedData.tags[0].items.length + 1
+            // });
+
+            Data.items.addItem(newItemValue);
+
             renderClosure();
         }
     }));
@@ -374,7 +470,7 @@ function addNewSomethingButton(ulPlace, text, callback) {
     return newTagLi;
 }
 
-  function RenderCachedItems(focusedInput, tagsUl, itemsUl, remover) {
+  async function RenderCachedItems(focusedInput, tagsUl, itemsUl, remover) {
     //render all tags,
     //render all items of the first tag
     //add event listeners to item to paste it into ficused input
@@ -397,7 +493,10 @@ function addNewSomethingButton(ulPlace, text, callback) {
         }
     })
 
-    cachedData.tags.forEach(tag => {
+    // cachedData.tags.forEach(tag => {
+    let alltags = await Data.tags.getAllData()
+    
+    alltags.forEach(tag => {
       const tagLi = document.createElement("li");
       tagLi.classList.add("fast-past-li-item");
       tagLi.innerText = tag.tag_name;
@@ -534,60 +633,31 @@ function createAddNewButton(headingText, callback) {
     return container
 }
 
-function tagModel(id, name) {
-    return {
-        Id: id || 0,
-        Name: name || ""
-    }
-}
-
-class Tags {
-    
-    constructor(db) {
-        this.tagsCache = [];
-        db
-    }
-
-    addTag(tag) {
-        this.tagsCache.push(tag);
-    }
-
-    removeTag(tag) {
-        this.tagsCache = this.tagsCache.filter(t => t !== tag);
-    }
-}
-
-function itemsModel(id,v,tid){
-    return {
-        Value: v || "",
-        TagId: tid || 0,
-        Id: id || 0,
-    }
-}
-
-class Items {
-    constructor(db) {
-        this.itemsCache = [];
-    }
-
-    addItem(item) {
-        this.itemsCache.push(item);
-    }
-
-    removeItem(item) {
-        this.itemsCache = this.itemsCache.filter(i => i !== item);
-    }
-}
-
-class FastPastDB {
-    constructor(db) {
-        this.db = db;
-        this.tags = new Tags(db);
-        this.items = new Items(db);
-    }
-}
-
-function CachedObject() {
-    this.tags = [];
-    this.items = [];
-}
+/**
+ * tags: [
+        {
+            tag_name: "Personal Data",
+            tag_id: 1,
+            items: [
+                {
+                    value: "Mikhail",
+                    id: 1
+                },
+                {
+                    value: "Cherniaev",
+                    id: 2
+                },
+                {
+                    value: "chernmisha@gmail.com",
+                    id: 3
+                }, {
+                    value: "https://www.linkedin.com/in/mikhail-i-cherniaev/",
+                    id: 4
+                }, {
+                    value: "+12026963640",
+                    id: 5
+                }
+            ]
+        }
+    ],
+ */
