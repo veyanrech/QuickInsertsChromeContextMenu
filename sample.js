@@ -55,9 +55,9 @@ chrome.runtime.onInstalled.addListener(function () {
 
 function dbInit() {
   chrome.storage.local.get("FastPastDBName", (result) => {
-    let dbName = result.dbName;
+    let dbName = result.FastPastDBName;
 
-    if (!dbName) {
+    if (Object.keys(result).length === 0 || !dbName) {
         dbName = generateUniqueDBName();
         saveDBName(dbName);
     }
@@ -72,7 +72,7 @@ function generateUniqueDBName() {
 
 // Save the database name in Chrome storage
 function saveDBName(dbName) {
-  chrome.storage.local.set({ dbName }, () => {
+  chrome.storage.local.set({ "FastPastDBName":dbName }, () => {
       console.log("Database name saved:", dbName);
   });
 }
@@ -82,9 +82,15 @@ function initializeDatabase(dbName) {
 
   request.onupgradeneeded = (event) => {
       const db = event.target.result;
-      if (!db.objectStoreNames.contains("FastPastObjectStore")) {
-          db.createObjectStore("FastPastObjectStore", { keyPath: "id", autoIncrement: true });
+      if (!db.objectStoreNames.contains("Tags")) {
+          db.createObjectStore("Tags", { keyPath: "id", autoIncrement: true });
       }
+      if (!db.objectStoreNames.contains("Items")) {
+        db.createObjectStore("Items", { keyPath: "id", autoIncrement: true });
+      }
+
+
+
       console.log("IndexedDB initialized with unique name and object store created.");
   };
 
