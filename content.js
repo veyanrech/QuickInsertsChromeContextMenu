@@ -38,26 +38,36 @@ let contentUtils = {};
         }
 
         this.db = null;
+        this.lastResult = null;
 
-        this.db = new Promise((resolve, reject) => {
-            const request = indexedDB.open(dbname, 1);
-    
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                if (!db.objectStoreNames.contains("Tags")) {
-                    db.createObjectStore("Tags", { keyPath: "id", autoIncrement: true });
-                }
+        const request = indexedDB.open(dbname, 1);
 
-                if (!db.objectStoreNames.contains("Items")) {
-                    db.createObjectStore("Items", { keyPath: "id", autoIncrement: true });
-                }
-            };
-    
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains("Tags")) {
+                db.createObjectStore("Tags", { keyPath: "id", autoIncrement: true });
+            }
 
-        return this
+            if (!db.objectStoreNames.contains("Items")) {
+                db.createObjectStore("Items", { keyPath: "id", autoIncrement: true });
+            }
+        };
+
+        request.onsuccess = () => {
+            this.db = request.result
+        };
+
+        request.onerror = (err) => {
+            console.error("Error opening database:", err);
+        };
+    }
+
+    DBInstance.prototype.returnLatestResult = function() {
+        
+        const _res = this.lastResult;
+        this.lastResult = null;
+        
+        return _res;
     }
 
     DBInstance.prototype.addData = async function(objectStorage, data) {
@@ -67,7 +77,11 @@ let contentUtils = {};
         const store = tx.objectStore(objectStorage);
         const request = store.add(data);
     
-        request.onsuccess = () => console.log("Data added:", request.result);
+        request.onsuccess = (event) => {
+            const insertedId = event.target.result;
+            this.lastResult = insertedId;
+        };
+
         request.onerror = () => console.error("Error adding data:", request.error);
     
         await tx.complete;
@@ -85,13 +99,19 @@ let contentUtils = {};
         await tx.complete;
     }
 
-    DBInstance.prototype.getAllData = async function(objectStorage) {
+    DBInstance.prototype.getAllData = async function(objectStorage, callback) {
         const db = this.db;
         const tx = db.transaction(objectStorage, "readonly");
         const store = tx.objectStore(objectStorage);
         const request = store.getAll();
     
-        request.onsuccess = () => console.log("Data retrieved:", request.result);
+        request.onsuccess = () => {
+            console.log("Data retrieved:", request.result)
+            if (callback) {
+                callback(request.result);
+            };
+        }
+        
         request.onerror = () => console.error("Error retrieving data:", request.error);
     
         await tx.complete;
@@ -142,7 +162,7 @@ let contentUtils = {};
         return lastIndex;
     }
 
-    retObj.DBInstance = DBInstance;
+    retObj.DBInstance = new DBInstance;
 
 })(contentUtils);
 
@@ -178,7 +198,7 @@ function addStyles() {
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 9999;
+        z-index: 19999;
         font-family: Arial, sans-serif;
     }
 
@@ -263,9 +283,19 @@ function addStyles() {
 }
 
 function tagModel(id, name) {
+    this.Id = id || 0;
+    this.Name = name || "Tag";
+}
+
+tagModel.prototype.returnValue = function() {
+    if (!this.Id) {
+        return {
+            Name: this.Name
+        };
+    }
     return {
-        Id: id || 0,
-        Name: name || "Tag"
+        Id: this.Id,
+        Name: this.Name
     }
 }
 
@@ -278,13 +308,12 @@ class Tags {
      * @param {DBInstance} db 
      */
     constructor(db) {
-        this._db = db;
+        this.#_db = db;
         this.tagsCache = [];
     }
 
-    addTag(tagValue) {
-        this._db.getLastIndexOfStorage("Tags");
-        this._db.addData("Tags", tagModel(null, tagValue));
+    addTag(tagValue) { 
+        this.#_db.addData("Tags", new tagModel(null, tagValue).returnValue());
     }
 
     removeTag(tagID) {
@@ -298,15 +327,33 @@ class Tags {
     getTagById(tagID) {}
 
     async getAllTags() {
-        this._db.getAllData("Tags");
+
+        return new Promise((resolve, reject) => {
+            this.#_db.getAllData("Tags", (result) => {
+                resolve(result);
+            });
+        });
+        
     }
 }
 
 function itemsModel(id,v,tid){
+    this.Id = id || 0;
+    this.Value = v || "Item";
+    this.TagId = tid || 0;
+}
+
+itemsModel.prototype.returnValue = function() {
+    if (!this.Id) {
+        return {
+            Value: this.Value,
+            TagId: this.TagId
+        };
+    }
     return {
-        Value: v || "",
-        TagId: tid || 0,
-        Id: id || 0,
+        Id: this.Id,
+        Value: this.Value,
+        TagId: this.TagId
     }
 }
 
@@ -319,7 +366,7 @@ class Items {
      * @param {DBInstance} db 
      */
     constructor(db) {
-        this._db = db;
+        this.#_db = db;
         this.itemsCache = [];
     }
 
@@ -353,7 +400,7 @@ class FastPastDB {
      * @param {DBInstance} db 
      */
     constructor(db) {
-        this.db = db;
+        this.#db = db;
         this.tags = new Tags(db);
         this.items = new Items(db);
     }
@@ -494,7 +541,7 @@ function addNewSomethingButton(ulPlace, text, callback) {
     })
 
     // cachedData.tags.forEach(tag => {
-    let alltags = await Data.tags.getAllData()
+    let alltags = await Data.tags.getAllTags()
     
     alltags.forEach(tag => {
       const tagLi = document.createElement("li");
