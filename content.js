@@ -191,6 +191,11 @@ function addStyles() {
     const style = document.createElement('style');
     style.innerHTML = `
 
+    .fast-past-overlay dialog::backdrop {
+        background: hsl(0 0% 10% / 0.5);
+        backdrop-filter: blur(2px);
+    }
+
     .fast-past-overlay {
         position: fixed;
         top: 0;
@@ -198,7 +203,7 @@ function addStyles() {
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 19999;
+        #z-index: 19999;
         font-family: Arial, sans-serif;
     }
 
@@ -206,6 +211,7 @@ function addStyles() {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        color: #333;
     }
 
     .fast-past-hoverable:hover {
@@ -221,11 +227,11 @@ function addStyles() {
         // top: 25%;?
         // left: 50%
         // transform: translate(-50%, -50%);
-        padding: 20px;
+        padding: 5px;
         background-color: white;
         border-radius: 8px;
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-        z-index: 10000;
+        #z-index: 10000;
         margin: 10% auto;
         max-width: 800px;
     }
@@ -268,11 +274,37 @@ function addStyles() {
     }
 
     .fast-past-li-item {
-        padding: 5px;
         margin: 5px;
         border-radius: 5px;
         background-color: #f0f0f0;
         cursor: pointer;
+    }
+
+    .fast-past-li-item:hover {
+        background-color: #e0e0e0;
+    }
+
+    .fast-past-icon-button {
+        cursor: pointer;
+        padding: 5px;
+        margin: 5px;
+        border-radius: 5px;
+        background-color: #f0f0f0;
+    }
+
+    .fast-past-icon-button:hover {
+        background-color: #e0e0e0;
+        color: #333;
+        transition: background-color 0.3s;
+        transform: scale(1.1);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .fast-past-truncate-tag-name {
+        padding: 5px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
     }
 
     `
@@ -419,7 +451,7 @@ function showDialog() {
     dialogOverlay.classList.add("fast-past-overlay");
   
     // Create the dialog box
-    const dialogBox = document.createElement("div");
+    const dialogBox = document.createElement("dialog");
     dialogBox.classList.add("fast-past-dialog");
   
     // Add a close button
@@ -428,6 +460,7 @@ function showDialog() {
     closeButton.appendChild(createIcon("close", 24, 24));
 
     const remover = () => {
+        dialogBox.close();
         dialogOverlay.removeChild(dialogBox);
         document.body.removeChild(dialogOverlay);
     }
@@ -500,6 +533,8 @@ function showDialog() {
     }
 
     RenderCachedItems(focusedInput, tagsList, itemsList, remover);
+
+    dialogBox.showModal();
   
 }
 
@@ -544,11 +579,10 @@ function addNewSomethingButton(ulPlace, text, callback) {
     let alltags = await Data.tags.getAllTags()
     
     alltags.forEach(tag => {
-      const tagLi = document.createElement("li");
-      tagLi.classList.add("fast-past-li-item");
-      tagLi.innerText = tag.tag_name;
+      const tagLi = renderTag(tag.id, tag.Name);
 
       tagLi.onclick = () => {
+        prompt("test", tag.id);
         //remove childs items
         
         const items = itemsUl.querySelectorAll(".fast-past-li-item")
@@ -570,7 +604,66 @@ function addNewSomethingButton(ulPlace, text, callback) {
 
   }
 
-  function renderPasteItems(placeToAppend,focusedInput,valueText,remover) {
+  function renderTag(id, tagName) {
+        const tagLi = document.createElement("li");
+        tagLi.classList.add("fast-past-li-item");
+        tagLi.dataset.tagId = id;
+
+        const iconSize = 20;
+
+        const editButton = document.createElement('div'); 
+        editButton.classList.add("fast-past-icon-button");
+        
+        editButton.appendChild(createIcon("edit", iconSize, iconSize))
+        editButton.onclick = (event) => {
+            event.stopPropagation();
+            const newTagName = prompt("Enter new tag name for id", id);
+            if (newTagName) {
+                // cachedData.tags[0].tag_name = newTagName;
+                // renderClosure();
+            }
+        }
+
+        const deleteButton = document.createElement('div');
+        deleteButton.classList.add("fast-past-icon-button");
+        deleteButton.appendChild(createIcon("delete", iconSize, iconSize))
+        deleteButton.onclick = (event) => {
+            event.stopPropagation();
+            const deletePromt = prompt("delete tag with id", id);
+            if (deletePromt) {
+                // cachedData.tags = [];
+                // renderClosure();
+            }
+            // cachedData.tags = [];
+            // renderClosure();
+        }
+
+        const container = document.createElement("div");
+        container.style.display = "flex";
+        container.style.justifyContent = "space-between";
+        container.style.alignItems = "center";
+
+        const textPlace = document.createElement("div");
+        textPlace.classList.add("fast-past-truncate-tag-name");
+        textPlace.innerText = tagName;
+
+        container.appendChild(textPlace);
+
+        const buttonsContainer = document.createElement("div");
+        buttonsContainer.style.display = "flex";
+        buttonsContainer.style.alignItems = "center";
+        
+        buttonsContainer.appendChild(editButton);
+        buttonsContainer.appendChild(deleteButton);
+
+        container.appendChild(buttonsContainer);
+
+        tagLi.appendChild(container);
+
+        return tagLi;
+  }
+
+function renderPasteItems(placeToAppend,focusedInput,valueText,remover) {
     const itemLi = document.createElement("li");
     
     itemLi.classList.add("fast-past-li-item");
@@ -581,7 +674,7 @@ function addNewSomethingButton(ulPlace, text, callback) {
 
 
     placeToAppend.appendChild(itemLi);
-  }
+}
 
   async function pasteClickedItemIntoFocusedInput(focusedInput,value,removerCallback) {
     await navigator.clipboard.writeText(value);
