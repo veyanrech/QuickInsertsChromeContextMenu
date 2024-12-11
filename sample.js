@@ -88,8 +88,9 @@ function initializeDatabase(dbName) {
       if (!db.objectStoreNames.contains("Items")) {
         db.createObjectStore("Items", { keyPath: "id", autoIncrement: true });
       }
-
-
+      if (!db.objectStoreNames.contains("ItemsCache")) {
+        db.createObjectStore("ItemsCache", { keyPath: "id", autoIncrement: true });
+      }
 
       console.log("IndexedDB initialized with unique name and object store created.");
   };

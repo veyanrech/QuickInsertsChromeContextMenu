@@ -197,13 +197,8 @@ function addStyles() {
     }
 
     .fast-past-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
         width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        #z-index: 19999;
+        height: 100vh;
         font-family: Arial, sans-serif;
     }
 
@@ -223,17 +218,17 @@ function addStyles() {
     }
 
     .fast-past-dialog {
-        position: relative;
-        // top: 25%;?
-        // left: 50%
-        // transform: translate(-50%, -50%);
         padding: 5px;
         background-color: white;
         border-radius: 8px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-        #z-index: 10000;
-        margin: 10% auto;
         max-width: 800px;
+
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translateX(-50%) translateY(-50%);
+        -moz-transform: translateX(-50%) translateY(-50%);
+        -ms-transform: translateX(-50%) translateY(-50%);
+        transform: translateX(-50%) translateY(-50%);
     }
 
     .fast-past-notification {
@@ -399,11 +394,10 @@ class Items {
      */
     constructor(db) {
         this.#_db = db;
-        this.itemsCache = [];
     }
 
-    addItem(itemValue) {
-       
+    addItem(itemValue, tagId) {
+        this.#_db.addData("Items", new itemsModel(null, itemValue, tagId).returnValue());
     }
 
     removeItem(item_id) {
@@ -415,12 +409,22 @@ class Items {
     }
 
     getItemsByTagId(tag_id) {
-
+        return new Promise((res,rej) => {
+            this.#_db.getAllData("Items", (result) => {
+                resolve( result.filter(item => item.TagId === tag_id) );
+            });
+        })
     }
 
-    getItemById(id) {
-
+    getAllItems() {
+        return new Promise((res,rej) => {
+            this.#_db.getAllData("Items", (result) => {
+                resolve(result);
+            });
+        })
     }
+
+    getFirstItem(tag_id) {}
 }
 
 class FastPastDB {
@@ -505,10 +509,6 @@ function showDialog() {
     itemsColumn.appendChild(createAddNewButton("Items", () => {
         const newItemValue = prompt("Enter new item value");
         if (newItemValue) {
-            // cachedData.tags[0].items.push({
-            //     value: newItemValue,
-            //     id: cachedData.tags[0].items.length + 1
-            // });
 
             Data.items.addItem(newItemValue);
 
@@ -598,9 +598,14 @@ function addNewSomethingButton(ulPlace, text, callback) {
       tagsUl.appendChild(tagLi);
     });
 
-    cachedData.tags[0].items.forEach(item => {
-        renderPasteItems(itemsUl,focusedInput,item.value,remover);
-    });
+    if (alltags.length > 0) {
+
+        const allItems = await Data.items.getAllItems();
+        
+        allItems.forEach(item => {
+            renderPasteItems(itemsUl,focusedInput,item.Value,remover, {tagId: item.TagId, itemId: item.Id});
+        });
+    }
 
   }
 
@@ -663,7 +668,7 @@ function addNewSomethingButton(ulPlace, text, callback) {
         return tagLi;
   }
 
-function renderPasteItems(placeToAppend,focusedInput,valueText,remover) {
+function renderPasteItems(placeToAppend,focusedInput,valueText,remover, paramters = {}) {
     const itemLi = document.createElement("li");
     
     itemLi.classList.add("fast-past-li-item");
@@ -671,6 +676,9 @@ function renderPasteItems(placeToAppend,focusedInput,valueText,remover) {
     itemLi.onclick = () => pasteClickedItemIntoFocusedInput(focusedInput, valueText,remover);
     itemLi.classList.add("fast-past-hoverable");
     
+    Object.keys(paramters).forEach(key => {
+        itemLi.dataset[`item_${key}`] = paramters[key];
+    });
 
 
     placeToAppend.appendChild(itemLi);
