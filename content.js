@@ -780,32 +780,3 @@ function createAddNewButton(headingText, callback) {
     // Append the container to the document body or any desired parent element
     return container
 }
-
-/**
- * tags: [
-        {
-            tag_name: "Personal Data",
-            tag_id: 1,
-            items: [
-                {
-                    value: "Mikhail",
-                    id: 1
-                },
-                {
-                    value: "Cherniaev",
-                    id: 2
-                },
-                {
-                    value: "chernmisha@gmail.com",
-                    id: 3
-                }, {
-                    value: "https://www.linkedin.com/in/mikhail-i-cherniaev/",
-                    id: 4
-                }, {
-                    value: "+12026963640",
-                    id: 5
-                }
-            ]
-        }
-    ],
- */
