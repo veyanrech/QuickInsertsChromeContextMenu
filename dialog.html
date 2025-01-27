@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #fast-past-dialog-id {
+            all: initial;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #333;
+            background: white;
+            border-radius: 8px;
+            padding: 0;
+            margin: auto 50%;
+            max-width: 800px;
+            max-height: 80vh;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            inset-block-start: 0px;
+            inset-block-end: 0px;
+            position: fixed;
+            transform: translate(-50%);
+            width: calc(100% - 2em - 6px);
+            height: calc(100% - 2em - 6px);
+            flex-flow: column;
+        }
+
+        #fast-past-dialog-id[open] {
+            display: block;
+        }
+
+        #fast-past-dialog-id * {
+            all: initial;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 1rem;
+        }
+
+        #fast-past-dialog-id .header {
+            padding: .25em;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #fast-past-dialog-id .header h1 {
+            padding: .25em;
+            font-size: 2em;
+            display: block;
+        }
+
+        .form-filler-dialog::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Container for the two-column layout */
+        .form-filler-container {
+            all: initial;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        /* Tags/Categories column */
+        .form-filler-tags {
+            all: initial;
+            background: #f5f5f5;
+            border-right: 1px solid #e0e0e0;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .form-filler-tag-item {
+            all: initial;
+            display: block;
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .form-filler-tag-item:hover {
+            background: #e0e0e0;
+        }
+
+        .form-filler-tag-item.active {
+            background: #2196f3;
+            color: white;
+        }
+
+        /* Values column */
+        .form-filler-values {
+            all: initial;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .form-filler-value-item {
+            all: initial;
+            display: block;
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-filler-value-item:hover {
+            background: #f5f5f5;
+        }
+
+        /* Dialog header */
+        .form-filler-header {
+            all: initial;
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-filler-title {
+            all: initial;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .form-filler-close {
+            all: initial;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .form-filler-close:hover {
+            background: #f5f5f5;
+        }
+
+        /* Search input */
+        .form-filler-search {
+            all: initial;
+            width: calc(100% - 32px);
+            padding: 8px;
+            margin: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-filler-search:focus {
+            outline: none;
+            border-color: #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <dialog id="fast-past-dialog-id">
+        <div class="header">
+            <h1>Fast Past Items Menu</h1>
+            <div class="container column-2">
+                <div class="column-75"></div>
+                <div class="column-25">
+                    <button id="close">Close</button>
+                </div>
+            </div>
+        </div>
+        <div class="body">
+            <div class="container column-2">
+                <div class="column-45">
+                    <div class="column-header">
+                        <div class="container column-2">
+                            <div class="column-50">
+                                <h2>Tags</h2>
+                            </div>
+                            <div class="column-50">
+                                <button id="add-tag">Add Tag</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column content tags"></div>
+                </div>
+                <div class="column-55">
+                    <div class="column-header">
+                        <div class="container column-2">
+                            <div class="column-50">
+                                <h2>Items</h2>
+                            </div>
+                            <div class="column-50">
+                                <button id="add-item">Add Item</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column content items"></div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+</body>
+<script type="text/javascript">
+    function ShowDialog(){
+        var dialog = document.getElementById('fast-past-dialog-id');
+        dialog.showModal();
+    }
+
+    function CloseDialog(){
+        var dialog = document.getElementById('fast-past-dialog-id');
+        dialog.close();
+    }
+
+    document.querySelector('#fast-past-dialog-id #close').addEventListener('click', CloseDialog);
+
+    ShowDialog();
+</script>
+</html>
