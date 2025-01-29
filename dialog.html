@@ -27,6 +27,10 @@
             flex-flow: column;
         }
 
+        #fast-past-dialog-id::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
         #fast-past-dialog-id[open] {
             display: block;
         }
@@ -52,8 +56,11 @@
             display: block;
         }
 
-        .form-filler-dialog::backdrop {
-            background: rgba(0, 0, 0, 0.5);
+        #fast-past-dialog-id .header button#close {
+            cursor: pointer;
+            padding: .25em;
+            border-radius: .25em;
+            border: 1px solid #e0e0e0;
         }
 
         /* Container for the two-column layout */
@@ -170,7 +177,7 @@
             <div class="container column-2">
                 <div class="column-75"></div>
                 <div class="column-25">
-                    <button id="close">Close</button>
+                    <button id="close">Close X</button>
                 </div>
             </div>
         </div>
