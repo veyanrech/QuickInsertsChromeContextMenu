@@ -14,8 +14,9 @@
             padding: 0;
             margin: auto 50%;
             max-width: 800px;
+            min-width: 250px;
             max-height: 60vh;
-            min-height: 20vh;
+            min-height: 250px;
             border: none;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             display: none;
@@ -25,8 +26,6 @@
             transform: translate(-50%);
             width: calc(100% - 2em - 6px);
             height: calc(100% - 2em - 6px);
-
-            flex-flow: column;
         }
 
         #fast-past-dialog-id::backdrop {
@@ -50,6 +49,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            max-height: calc(1.5em + 2px + .5em);
         }
 
         #fast-past-dialog-id .header h1 {
@@ -70,13 +70,21 @@
             padding: .25em;
             display: flex;
             flex-flow: column;
-            overflow-y: auto;
+            max-height: calc(60vh - calc(1.5em + 2px + .5em));
         }
 
         #fast-past-dialog-id .container {
             display: flex;
             flex-flow: row;
             padding: .25em;
+        }
+
+        #fast-past-dialog-id .container .column-header {
+            max-height: 30px;
+        }
+
+        #fast-past-dialog-id .container .column-header {
+            max-height: 30px;
         }
 
         #fast-past-dialog-id .container.column {
@@ -114,7 +122,9 @@
             display: flex;
             flex-flow: column;
 
-            height: max-content;
+            max-height: calc(60vh - calc(1.5em + 2px + .5em) - 30px - .5em);
+
+            overflow: auto;
         }
 
         #fast-past-dialog-id .tag-container, #fast-past-dialog-id .item-container {
@@ -139,146 +149,155 @@
 </head>
 <body>
     <dialog id="fast-past-dialog-id">
-        <div class="header">
-            <h1>Fast Past Items Menu</h1>
-            <div class="container column-2">
-                <div class="column-75"></div>
-                <div class="column-25">
-                    <button id="close">Close X</button>
-                </div>
-            </div>
-        </div>
-        <div class="body">
-            <div class="container">
-                <div class="column-35">
-                    <div class="column-header">
-                        <div class="container column">
-                            <div class="column-75">
-                                <h2>Tags</h2>
-                            </div>
-                            <div class="column-25">
-                                <button id="add-tag">Add +</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column content tags">
-                        <div class="tag-container">
-                            <div class="tag-content">Test tag</div>
-                            <div class="tag-action">
-                                <button class="edit-tag">Edit</button>
-                                <button class="delete-tag">Delete</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="vertical-line" style="flex-grow: 1;"></div>
-                <div class="column-65">
-                    <div class="column-header">
-                        <div class="container column">
-                            <div class="column-75">
-                                <h2>Items</h2>
-                            </div>
-                            <div class="column-25">
-                                <button id="add-item">Add +</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column content items">
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Del</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
-                        <div class="item-container">
-                            <div class="item-content">Test item</div>
-                            <div class="item-action">
-                                <button class="edit-item">Edit</button>
-                                <button class="delete-item">Delete</button>
-                            </div>
-                        </div>
+        <div style="
+            display: flex;
+            flex-flow: column;
+            position: relative;
+            ">
+
+            <div class="header">
+                <h1>Fast Past Items Menu</h1>
+                <div class="container column-2">
+                    <div class="column-75"></div>
+                    <div class="column-25">
+                        <button id="close">Close X</button>
                     </div>
                 </div>
             </div>
+            <div class="body">
+                <div class="container">
+                    <div class="column-35">
+                        <div class="column-header">
+                            <div class="container column">
+                                <div class="column-75">
+                                    <h2>Tags</h2>
+                                </div>
+                                <div class="column-25">
+                                    <button id="add-tag">Add +</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column content tags">
+                            <div class="tag-container">
+                                <div class="tag-content">Test tag</div>
+                                <div class="tag-action">
+                                    <button class="edit-tag">Edit</button>
+                                    <button class="delete-tag">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="vertical-line" style="flex-grow: 1;"></div>
+                    <div class="column-65">
+                        <div class="column-header">
+                            <div class="container column">
+                                <div class="column-75">
+                                    <h2>Items</h2>
+                                </div>
+                                <div class="column-25">
+                                    <button id="add-item">Add +</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column content items">
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Test item</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
+       
     </dialog>
 </body>
 <script type="text/javascript">
