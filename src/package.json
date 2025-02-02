@@ -1,0 +1,11 @@
+{
+  "name": "fastpastextension",
+  "version": "0.0.1",
+  "description": "choose data you previously saved to past into selected input",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "mikhail cherniaev",
+  "license": "ISC"
+}

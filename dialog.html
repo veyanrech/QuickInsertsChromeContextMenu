@@ -122,7 +122,8 @@
             display: flex;
             flex-flow: column;
 
-            max-height: calc(60vh - calc(1.5em + 2px + .5em) - 30px - .5em);
+            min-height: 175px;
+            max-height: calc(60vh - calc(1.5em + 2px + .5em) - 30px - 1.5em);
 
             overflow: auto;
         }
@@ -143,6 +144,20 @@
         #fast-past-dialog-id .item-container .item-action button:hover, #fast-past-dialog-id .tag-container .tag-action button:hover {
             border: 1px solid #7e7e7e;
             background-color: #e0e0e0;
+        }
+
+        #fast-past-dialog-id .add-item, #fast-past-dialog-id .edit-item, #fast-past-dialog-id .delete-item, #fast-past-dialog-id .add-tag, #fast-past-dialog-id .edit-tag, #fast-past-dialog-id .delete-tag {
+            cursor: pointer;
+            font-size: .75em;
+            border: 1px solid #e0e0e0;
+            padding: .07em;
+        }
+
+        #fast-past-dialog-id #add-tag, #fast-past-dialog-id #add-item{
+            cursor: pointer;
+            border: 1px solid #e0e0e0;
+            border-radius: .25em;
+            padding: .07em;
         }
         
     </style>
@@ -186,7 +201,7 @@
                         <div class="column-header">
                             <div class="container column">
                                 <div class="column-75">
-                                    <h2>Items</h2>s
+                                    <h2>Items</h2>
                                 </div>
                                 <div class="column-25">
                                     <button id="add-item">Add +</button>
@@ -194,7 +209,84 @@
                             </div>
                         </div>
                         <div class="column content items">
-                            
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+                            <div class="item-container">
+                                <div class="item-content">Item 1</div>
+                                <div class="item-action">
+                                    <button class="edit-item">Edit</button>
+                                    <button class="delete-item">Del X</button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
