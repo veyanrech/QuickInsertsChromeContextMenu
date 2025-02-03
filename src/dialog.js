@@ -205,7 +205,15 @@ export const dialogCssCode = `
     padding: .07em;
 }`;
 
+export function CloseDialog(){
+    var dialog = document.getElementById('fast-past-dialog-id');
+    dialog.close();
+}
+
 export function ShowDialog(){
+
+    showDialog();
+
     var dialog = document.getElementById('fast-past-dialog-id');
     dialog.showModal();
 }
@@ -217,31 +225,10 @@ function showDialog() {
     // Create the dialog box
     const dialogBox = document.createElement("dialog");
     dialogBox.id = "fast-past-dialog-id";
-  
-    // Add a close button
-    const closeButton = document.createElement("div");
-    closeButton.classList.add("fast-past-close-button");
-    closeButton.appendChild(createIcon("close", 24, 24));
 
-    const remover = () => {
-        dialogBox.close();
-        dialogOverlay.removeChild(dialogBox);
-        document.body.removeChild(dialogOverlay);
-    }
+    dialogBox.innerHTML = dialogHtmlCode;
 
-    closeButton.onclick = remover;
-
-    dialogBox.appendChild(closeButton);
-  
-    // Append the dialog and overlay to the document
-    dialogOverlay.appendChild(dialogBox);
-    document.body.appendChild(dialogOverlay);
-
-    const tagsAndItemsContainer = document.createElement("div");
-    tagsAndItemsContainer.style.display = "flex";
-
-    const tagsColumn = document.createElement("div");
-    tagsColumn.className = "fast-past-tags-column";
+    const tagsColumn = document.querySelector("#fast-past-dialog-id .column.content.tags");
 
     tagsColumn.appendChild(createAddNewButton("Tags", () => {
         const newTagName = prompt("Enter new tag name");
