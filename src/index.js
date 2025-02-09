@@ -1,5 +1,5 @@
-import { contentUtils } from "db.js";
-import { AddStyles, ShowDialog } from "dialog.js";
+import { contentUtils } from "./db";
+import { AddStyles, ShowDialog } from "./dialog";
 
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 

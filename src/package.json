@@ -1,11 +1,22 @@
 {
-  "name": "fastpastextension",
-  "version": "0.0.1",
-  "description": "choose data you previously saved to past into selected input",
-  "main": "index.js",
+  "name": "form-filler-extension",
+  "version": "1.0.0",
   "scripts": {
-    "test": "test"
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch"
   },
-  "author": "mikhail cherniaev",
-  "license": "ISC"
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.22.20",
+    "@babel/preset-react": "^7.22.15",
+    "babel-loader": "^9.1.3",
+    "css-loader": "^6.8.1",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
 }

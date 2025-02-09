@@ -1,7 +1,9 @@
+const contentUtils = {};
+
 (function(retObj){
 
     console.log(this)
-    console.log(this.chrome)
+    // console.log(this.chrome)
 
     let singleton = null;
 
@@ -166,7 +168,5 @@
     return retObj;
 
 })(contentUtils);
-
-const contentUtils = {};
 
 export default contentUtils;

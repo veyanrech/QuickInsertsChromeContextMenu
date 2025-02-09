@@ -208,19 +208,77 @@ export const dialogCssCode = `
 export function CloseDialog(){
     var dialog = document.getElementById('fast-past-dialog-id');
     dialog.close();
+    removeESCEventListenerONDialogClosed(dialog);
+    detachCloseEventToCloseButton();
 }
 
 export function ShowDialog(){
 
-    showDialog();
+    appendDialogToBody();
 
     var dialog = document.getElementById('fast-past-dialog-id');
     dialog.showModal();
-}
-
-function showDialog() {
 
     const focusedInput = document.activeElement;
+
+    const tagsColumn = document.querySelector("#fast-past-dialog-id .column.content.tags");
+
+    const itemsColumn = document.querySelector("#fast-past-dialog-id .column.content.items");
+
+    const addTagButton = document.getElementById("add-tag");
+
+    const addItemButton = document.getElementById("add-item");
+
+    addESCEventListenerONDialogOpened(dialog);
+
+    attachCloseEventToCloseButton();
+}
+
+function addESCEventListenerONDialogOpened(dialogElement) {
+    if (!dialogElement) {
+        return;
+    }
+
+    if (dialogElement.hasAttribute("open")) {
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                dialogElement.close();
+            }
+        });
+    }
+}
+
+function removeESCEventListenerONDialogClosed(dialogElement) {
+    if (dialogElement) {
+        document.removeEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                dialogElement.close();
+            }
+        });
+    }
+}
+
+function attachCloseEventToCloseButton() {
+    const closeButton = document.querySelector("#fast-past-dialog-id #close");
+
+    closeButton.addEventListener("click", () => {
+        CloseDialog();
+    });
+}
+
+function detachCloseEventToCloseButton() {
+    const closeButton = document.querySelector("#fast-past-dialog-id #close");
+
+    closeButton.removeEventListener("click", () => {
+        CloseDialog();
+    });
+}
+
+function appendDialogToBody() {
+
+    if (document.getElementById('fast-past-dialog-id')) {
+        return;
+    }
   
     // Create the dialog box
     const dialogBox = document.createElement("dialog");
@@ -228,60 +286,7 @@ function showDialog() {
 
     dialogBox.innerHTML = dialogHtmlCode;
 
-    const tagsColumn = document.querySelector("#fast-past-dialog-id .column.content.tags");
-
-    tagsColumn.appendChild(createAddNewButton("Tags", () => {
-        const newTagName = prompt("Enter new tag name");
-        if (newTagName) {
-            
-            // cachedData.tags.push({
-            //     tag_name: newTagName,
-            //     tag_id: cachedData.tags.length + 1,
-            //     items: []
-            // });
-
-            Data.tags.addTag(newTagName);
-
-            renderClosure();
-        }
-    }));
-
-    const tagsList = document.createElement("ul");
-    tagsList.style.listStyle = "none";
-    tagsColumn.appendChild(tagsList);
-
-    const itemsColumn = document.createElement("div");
-    itemsColumn.classList.add("fast-past-items-column");
-
-    itemsColumn.appendChild(createAddNewButton("Items", () => {
-        const newItemValue = prompt("Enter new item value");
-        if (newItemValue) {
-
-            Data.items.addItem(newItemValue);
-
-            renderClosure();
-        }
-    }));
-
-    const itemsList = document.createElement("ul");
-    itemsList.style.listStyle = "none";
-    itemsColumn.appendChild(itemsList);
-
-    tagsAndItemsContainer.appendChild(tagsColumn);
-    tagsAndItemsContainer.appendChild(itemsColumn);
-
-    dialogBox.appendChild(tagsAndItemsContainer);
-
-    const renderClosure = () => {
-        const f = focusedInput;
-        const t = tagsList;
-        const i = itemsList;
-        RenderCachedItems(f, t, i, remover);
-    }
-
-    RenderCachedItems(focusedInput, tagsList, itemsList, remover);
-
-    dialogBox.showModal();
+    document.body.appendChild(dialogBox);
   
 }
 
