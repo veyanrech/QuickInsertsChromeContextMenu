@@ -212,7 +212,7 @@ export function CloseDialog(){
     detachCloseEventToCloseButton();
 }
 
-export function ShowDialog(){
+export function ShowDialog(app){
 
     appendDialogToBody();
 
@@ -226,12 +226,29 @@ export function ShowDialog(){
     const itemsColumn = document.querySelector("#fast-past-dialog-id .column.content.items");
 
     const addTagButton = document.getElementById("add-tag");
+    attachAddTagEvent(app, addTagButton);
 
     const addItemButton = document.getElementById("add-item");
 
     addESCEventListenerONDialogOpened(dialog);
 
     attachCloseEventToCloseButton();
+}
+
+function attachAddTagEvent(app, tagbutton) {
+    tagbutton.addEventListener("click", () => {
+        // Add Tag
+       let userinput = window.prompt("Add Tag", "New Tag Name");
+       if (userinput == null) {
+           // Add Tag to the list
+           return
+       }
+
+        let newtagid =( async function(){ return await app.addTag(userinput) } () );
+
+        tagRender(newtagid, userinput);
+
+    });
 }
 
 function addESCEventListenerONDialogOpened(dialogElement) {
@@ -303,4 +320,37 @@ export function AddStyles() {
     document.head.appendChild(style);
 
     cssWasAdded = true;
+}
+
+function tagRender(tagid, tagname) {
+
+    const cont = document.createElement('div');
+    cont.classList.add('tag-container');
+
+    const html = `<div class="tag-content">${tagname}</div>`+
+    `<div class="tag-action">
+        <button class="edit-tag" onclick="tagedit(${tagid})">Edit</button>
+        <button class="delete-tag" onclick="tagdelete(${tagid})">Del X</button>
+    </div>`;
+
+    cont.innerHTML = html;
+
+    return cont;
+}
+
+function itemRender(tagid, itemid, itemvalue) {
+
+    const cont = document.createElement('div');
+    cont.classList.add('item-container');
+
+    const html = `<div class="item-content">${itemvalue}</div>` +
+    `<div class="item-action">
+        <button class="edit-item" onclick="itemedit(${itemid})">Edit</button>
+        <button class="delete-item" onclick="itemdelete(${itemid})">Del X</button>
+    </div>`;
+
+    cont.innerHTML = html;
+
+    return cont;
+
 }

@@ -1,4 +1,4 @@
-class Items {
+export class Items {
 
     #_db = null;
 

@@ -1,4 +1,4 @@
-export default class Tags {
+export class Tags {
     
     #_db = null;
 
@@ -7,11 +7,13 @@ export default class Tags {
      * @param {DBInstance} db IndexDB instance
      */
     constructor(db) {
-        this.#_db = db;
+        this.#_db = db.DBInstance;
         this.tagsCache = [];
     }
 
     addTag(tagValue) { 
+        console.log("Adding Tag", tagValue);
+        console.log(this.#_db);
         this.#_db.addData("Tags", new tagModel(null, tagValue).returnValue());
     }
 

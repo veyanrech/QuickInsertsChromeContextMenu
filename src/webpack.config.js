@@ -1,6 +1,17 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
+  optimization: {
+    minimize: false // Prevents minification
+    ,moduleIds: 'named', // Keep module names readable
+    chunkIds: 'named' // Keep chunk names readable
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production')
+    })
+  ],
   entry: {
     content: './index.js'
   },

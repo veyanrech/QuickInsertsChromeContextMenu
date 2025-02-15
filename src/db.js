@@ -1,4 +1,4 @@
-const contentUtils = {};
+const DBINSTANCE = {};
 
 (function(retObj){
 
@@ -167,6 +167,6 @@ const contentUtils = {};
 
     return retObj;
 
-})(contentUtils);
+})(DBINSTANCE);
 
-export default contentUtils;
+export default DBINSTANCE;
