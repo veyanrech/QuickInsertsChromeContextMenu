@@ -1,21 +1,17 @@
-import Actions from "./dataActions";
-import DBINSTANCE from "./db";
-import { AddStyles, ShowDialog } from "./dialog";
-
-const APP = new Actions(DBINSTANCE);
-console.log(APP)
+import Actions from "./Actions";
+import {DB} from "./db";
+import { AddStyles, ShowDialog, DialogUI } from "./dialog";
+const dbinstance = await new DB();
+const APP = new Actions(dbinstance);
+const UI = new DialogUI(APP);
 
 chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
 
     AddStyles();
 
     if (msg.action == 'open_dialog_box') {
-        ShowDialog(APP);
+        ShowDialog(UI);
     }
-
-    console.log(msg)
-    console.log(sender)
-    console.log(sendResponse)
 
     return true;
   

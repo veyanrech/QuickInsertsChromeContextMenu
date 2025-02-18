@@ -2,19 +2,14 @@ export class Tags {
     
     #_db = null;
 
-    /**
-     * 
-     * @param {DBInstance} db IndexDB instance
-     */
     constructor(db) {
-        this.#_db = db.DBInstance;
-        this.tagsCache = [];
+        this.#_db = db;
     }
 
-    addTag(tagValue) { 
-        console.log("Adding Tag", tagValue);
-        console.log(this.#_db);
-        this.#_db.addData("Tags", new tagModel(null, tagValue).returnValue());
+    async addTag(tagValue) {
+        const idres = await this.#_db.addData("Tags", new tagModel(null, tagValue).returnValue())
+        console.log("tag actions add tag id", idres);
+        return idres;
     }
 
     removeTag(tagID) {
@@ -29,13 +24,7 @@ export class Tags {
     getTagById(tagID) {}
 
     async getAllTags() {
-
-        return new Promise((resolve, reject) => {
-            this.#_db.getAllData("Tags", (result) => {
-                resolve(result);
-            });
-        });
-        
+        return this.#_db.getAllData("Tags");        
     }
 }
 

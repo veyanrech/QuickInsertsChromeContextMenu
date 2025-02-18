@@ -2,16 +2,12 @@ export class Items {
 
     #_db = null;
 
-    /**
-     * 
-     * @param {DBInstance} db IndexDB instance
-     */
     constructor(db) {
         this.#_db = db;
     }
 
-    addItem(itemValue, tagId) {
-        this.#_db.addData("Items", new itemsModel(null, itemValue, tagId).returnValue());
+    async addItem(itemValue, tagId) {
+        return this.#_db.addData("Items", new itemsModel(null, itemValue, tagId).returnValue());
     }
 
     removeItem(item_id) {
@@ -27,7 +23,9 @@ export class Items {
     getItemsByTagId(tag_id) {
         return new Promise((res,rej) => {
             this.#_db.getAllData("Items", (result) => {
-                resolve( result.filter(item => item.TagId === tag_id) );
+                if (!tag_id) return rej("No tag id provided");
+                if (!result) return rej("No items found");
+                res( result.filter(item => item.TagId === tag_id) );
             });
         })
     }
@@ -35,7 +33,7 @@ export class Items {
     getAllItems() {
         return new Promise((res,rej) => {
             this.#_db.getAllData("Items", (result) => {
-                resolve(result);
+                res(result);
             });
         })
     }

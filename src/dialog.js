@@ -1,3 +1,5 @@
+import Actions from "./Actions";
+
 export const dialogHtmlCode = ``+
     // <dialog id="fast-past-dialog-id">
         `<div style="
@@ -142,10 +144,12 @@ export const dialogCssCode = `
 
 #fast-past-dialog-id .column-35 {
     flex-grow: 35;
+    width: 35%;
 }
 
 #fast-past-dialog-id .column-65 {
     flex-grow: 65;
+    width: 65%;
 }
 
 #fast-past-dialog-id .column-75 {
@@ -177,7 +181,31 @@ export const dialogCssCode = `
     display: flex;
     flex-flow: row;
     padding: .25em;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
 }
+
+#fast-past-dialog-id .tag-container.selected {
+    background-color:rgb(61, 61, 61);
+    border-bottom: 1px solid rgb(224, 224, 224);
+    color: white;
+}
+
+#fast-past-dialog-id .tag-container:hover, #fast-past-dialog-id .item-container:hover {
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+#fast-past-dialog-id .tag-container .tag-content  {
+    flex-grow: 85;
+    max-width: 250px;
+}
+
+#fast-past-dialog-id .tag-container .tag-action  {
+    flex-grow: 15;
+    max-width: 75px;
+}
+
 
 #fast-past-dialog-id .item-container .item-action button, #fast-past-dialog-id .tag-container .tag-action button {
     cursor: pointer;
@@ -203,7 +231,12 @@ export const dialogCssCode = `
     border: 1px solid #e0e0e0;
     border-radius: .25em;
     padding: .07em;
-}`;
+}
+
+#fast-past-dialog-id .column.content.tags {
+    max-width: 400px;
+}
+`;
 
 export function CloseDialog(){
     var dialog = document.getElementById('fast-past-dialog-id');
@@ -212,44 +245,19 @@ export function CloseDialog(){
     detachCloseEventToCloseButton();
 }
 
-export function ShowDialog(app){
 
-    appendDialogToBody();
 
-    var dialog = document.getElementById('fast-past-dialog-id');
-    dialog.showModal();
-
-    const focusedInput = document.activeElement;
-
-    const tagsColumn = document.querySelector("#fast-past-dialog-id .column.content.tags");
-
-    const itemsColumn = document.querySelector("#fast-past-dialog-id .column.content.items");
-
-    const addTagButton = document.getElementById("add-tag");
-    attachAddTagEvent(app, addTagButton);
-
-    const addItemButton = document.getElementById("add-item");
-
-    addESCEventListenerONDialogOpened(dialog);
-
-    attachCloseEventToCloseButton();
+/**
+ * 
+ * @param {DialogUI} dialogui 
+ */
+export function ShowDialog(dialogui){
+    dialogui.show();
 }
 
-function attachAddTagEvent(app, tagbutton) {
-    tagbutton.addEventListener("click", () => {
-        // Add Tag
-       let userinput = window.prompt("Add Tag", "New Tag Name");
-       if (userinput == null) {
-           // Add Tag to the list
-           return
-       }
+function initialLoadtags(app, tagsColumn, itemsColumn, ) {}
 
-        let newtagid =( async function(){ return await app.addTag(userinput) } () );
-
-        tagRender(newtagid, userinput);
-
-    });
-}
+function selectTagEvent(app, tagid, tagsColumn, itemsColumn) {}
 
 function addESCEventListenerONDialogOpened(dialogElement) {
     if (!dialogElement) {
@@ -292,10 +300,6 @@ function detachCloseEventToCloseButton() {
 }
 
 function appendDialogToBody() {
-
-    if (document.getElementById('fast-past-dialog-id')) {
-        return;
-    }
   
     // Create the dialog box
     const dialogBox = document.createElement("dialog");
@@ -321,8 +325,16 @@ export function AddStyles() {
 
     cssWasAdded = true;
 }
-
-function tagRender(tagid, tagname) {
+/**
+ * 
+ * @param {DialogUI} app
+ * @param {number} tagid 
+ * @param {string} tagname 
+ * @returns Object{
+ *     id: number,
+ *    htmlelement: HTMLElement}
+ */
+function tagRender(app, tagid, tagname) {
 
     const cont = document.createElement('div');
     cont.classList.add('tag-container');
@@ -335,10 +347,36 @@ function tagRender(tagid, tagname) {
 
     cont.innerHTML = html;
 
-    return cont;
+    cont.onclick = () => {
+
+        const thisTagID = tagid;
+        const thisCont = cont;
+
+        app.setCurrentTag((()=>{
+            return {
+                id:thisTagID,
+                htmlelement:thisCont
+            };
+        })());
+    }
+
+    return {
+        id:tagid,
+        htmlelement:cont
+    };
 }
 
-function itemRender(tagid, itemid, itemvalue) {
+let tagdelete = null;
+
+/**
+ * 
+ * @param {Actions} app 
+ * @param {*} tagid 
+ * @param {*} itemid 
+ * @param {*} itemvalue 
+ * @returns 
+ */
+function itemRender(app, tagid, itemid, itemvalue) {
 
     const cont = document.createElement('div');
     cont.classList.add('item-container');
@@ -351,6 +389,173 @@ function itemRender(tagid, itemid, itemvalue) {
 
     cont.innerHTML = html;
 
-    return cont;
+    cont.onclick = () => {
+        navigator.clipboard.writeText(itemvalue).then(() => {
+            console.log('Async: Copying to clipboard was successful!');
+        }, (err) => {
+            console.error('Async: Could not copy text: ', err);
+        });
+    }
 
+    return {
+        id:itemid,
+        htmlelement:cont
+    };
+
+}
+
+function itemdelete(itemid) {
+    console.log("itemdelete", itemid);
+}
+
+export class DialogUI {
+
+    tagsColumn = null;
+    itemsColumn = null;
+
+    addTagButton = null;
+    addItemButton = null;
+
+    dialog = null;
+
+    #_items = {};
+
+    /**
+     * @type {tagItem}
+     */
+    currentTag = null;
+
+    /*
+    * @type {Object.<number, tagItem>}
+    */
+    tags = {};
+
+    /**
+     * 
+     * @param {Actions} app 
+     */
+    constructor(app) {
+        this.app = app;
+
+        if (!document.getElementById('fast-past-dialog-id')) {
+            appendDialogToBody();
+        }
+
+        tagdelete = (tagid) => {
+            app.removeTag(tagid);
+            if (this.tags[tagid]) {
+                this.tags[tagid].htmlelement.remove();
+            }
+        };
+
+        this.init();
+    }
+
+    async show() {
+
+        if (!document.getElementById('fast-past-dialog-id')) {
+            appendDialogToBody();
+            this.init();
+            Object.keys(this.tags).forEach((key) => {
+                this.tagsColumn.appendChild(this.tags[key].htmlelement);
+            });
+        }
+
+        this.dialog.showModal();
+        const focusedInput = document.activeElement;
+    }
+
+    async init() {
+        this.dialog = document.getElementById('fast-past-dialog-id');
+
+        addESCEventListenerONDialogOpened(this.dialog);
+        
+        attachCloseEventToCloseButton();
+
+        this.tagsColumn = document.querySelector("#fast-past-dialog-id .column.content.tags");
+        this.itemsColumn = document.querySelector("#fast-past-dialog-id .column.content.items");
+
+        this.addTagButton = document.getElementById("add-tag");
+        this.addItemButton = document.getElementById("add-item");
+
+        this.addTagButton.addEventListener("click", async (e) => {
+            // Add Tag
+            let userinput = window.prompt("Add Tag", "New Tag Name");
+            if (userinput == null) {
+                // Add Tag to the list
+                alert("Tag name is required");
+                return
+            }
+    
+            let newtagid = await this.app.addTag(userinput)
+
+            console.log("new tag id", newtagid, this.tags);
+
+            this.tags[newtagid] = tagRender(this, newtagid, userinput);
+
+            this.tagsColumn.appendChild(this.tags[newtagid].htmlelement);
+        });
+
+
+        this.addItemButton.addEventListener("click", async (e) => {
+            // Add Item
+            let userinput = window.prompt("Add Item", "New Item Name");
+            if (userinput == null) {
+                // Add Item to the list
+                alert("Item name is required");
+                return
+            }
+
+            let newitemid = await this.app.addItem(this.getCurrentTag().id, userinput);
+
+            this.#_items[newitemid] = itemRender(this, this.getCurrentTag().id, newitemid, userinput);
+
+            this.itemsColumn.appendChild(this.#_items[newitemid].htmlelement);
+        });
+
+        let tags = await this.app.getAllTags();
+        tags.forEach(element => {
+            this.tags[element.id] = tagRender(this, element.id, element.Name);
+            this.tagsColumn.appendChild(this.tags[element.id].htmlelement);
+        });
+
+        console.log("tags", tags);
+
+    }
+
+    /**
+     * 
+     * @param {tagItem} tag 
+     */
+    setCurrentTag(tag) {
+
+        if (this.currentTag){
+            this.currentTag.htmlelement.classList.remove("selected");
+        }
+
+        this.currentTag = tag;
+
+        this.tags[tag.id]
+            .htmlelement
+            .classList.add("selected");
+
+            this.itemsColumn.innerHTML = "No data found";
+
+        this.app.getItemsByTagId(tag.id).then((items) => {
+            if (!items || items.length == 0) return;
+            this.itemsColumn.innerHTML = "";
+            items.forEach(element => {
+                this.#_items[element.id] = itemRender(this, element.TagId, element.id, element.Value);
+                this.itemsColumn.appendChild(this.#_items[element.id].htmlelement);
+            });
+        });
+    }
+
+    /**
+     * 
+     * @returns {tagItem}
+     */
+    getCurrentTag() {
+        return this.currentTag;
+    }
 }

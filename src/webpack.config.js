@@ -19,6 +19,7 @@ module.exports = {
     path: path.resolve(__dirname, 'build'),
     filename: 'content.js'
   },
+  devtool: 'cheap-module-source-map',
   module: {
     rules: [
       {
