@@ -514,7 +514,7 @@ export class DialogUI {
         });
 
         let tags = await this.app.getAllTags();
-        tags.forEach(element => {
+        tags?.forEach(element => {
             this.tags[element.id] = tagRender(this, element.id, element.Name);
             this.tagsColumn.appendChild(this.tags[element.id].htmlelement);
         });

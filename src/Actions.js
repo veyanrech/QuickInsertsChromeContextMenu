@@ -22,17 +22,17 @@ export default class Actions {
      */
     #_itemsdb = null;
 
-    #_db = null;
+    // #_db = null;
 
     constructor(db) {
         this.data = [];
 
-        this.#_db = db;
+        // this.#_db = db;
 
-        this.#_tagsdb = new Tags(db);
-        this.#_itemsdb = new Items(db);
+        this.#_tagsdb = new Tags();
+        this.#_itemsdb = new Items();
 
-        console.log("Actions",this.#_tagsdb,this.#_itemsdb,this.#_db);
+        console.log("Actions",this.#_tagsdb,this.#_itemsdb);
     }
 
     async addTag(tagValue) {

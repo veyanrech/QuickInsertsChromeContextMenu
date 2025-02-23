@@ -2,12 +2,9 @@
     "name": "Context Menus Sample",
     "description": "Uses the chrome.contextMenus API to customize the context menu.",
     "version": "0.1",
-    "permissions": ["contextMenus","activeTab","scripting","storage"],
+    "permissions": ["contextMenus","activeTab","storage"],
     "background": {
-      "service_worker": "sample.js"
-    },
-    "content_security_policy": {
-      "extension_pages": "script-src 'self'; object-src 'self'"
+      "service_worker":"background.js"
     },
     "content_scripts": [
       {

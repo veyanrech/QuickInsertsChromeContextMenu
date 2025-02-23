@@ -1,36 +1,78 @@
 export class Tags {
     
-    #_db = null;
+    // #_db = null;
 
     constructor(db) {
-        this.#_db = db;
+        // this.#_db = db;
     }
 
-    async addTag(tagValue) {
-        const idres = await this.#_db.addData("Tags", new tagModel(null, tagValue).returnValue())
-        console.log("tag actions add tag id", idres);
-        return idres;
+    addTag(tagValue) {
+        // const idres = await this.#_db.addData("Tags", new tagModel(null, tagValue).returnValue())
+        // console.log("tag actions add tag id", idres);
+        // return idres;
+        console.log("ADD TAG",tagValue);
+
+        return new Promise((res,rej)=>{
+            chrome.runtime.sendMessage({
+                action: "SAVEDATA",
+                objectStorage: "Tags",
+                data: new tagModel(null, tagValue).returnValue()
+            }, (response) => {
+                console.log("ADD TAG response",response);
+                res(response);
+            });
+        })
+
     }
 
     removeTag(tagID) {
         //remove all items with tagID
-        return this.#_db.removeData("Tags", tagID);
+        // return this.#_db.removeData("Tags", tagID);
+        return new Promise((res,rej)=>{
+            chrome.runtime.sendMessage({
+                action: "DELETEDATA",
+                objectStorage: "Tags",
+                id: tagID
+            }, (response) => {
+                res(response);
+            });
+        })
     }
 
     updateTag(tagID, tagData) {
         //update tag name
     }
 
-    getTagById(tagID) {}
+    getTagById(tagID) {
+        // return this.#_db.getData("Tags", tagID);
+        return new Promise((res,rej)=>{
+            chrome.runtime.sendMessage({
+                action: "GETDATABYID",
+                objectStorage: "Tags",
+                id: tagID
+            }, (response) => {
+                res(response);
+            });
+        })
+    }
 
-    async getAllTags() {
-        return this.#_db.getAllData("Tags");        
+    getAllTags() {
+        // return this.#_db.getAllData("Tags");        
+        return new Promise((res,rej)=>{
+            chrome.runtime.sendMessage({
+                action: "GETALLDATA",
+                objectStorage: "Tags"
+            }, (response) => {
+                res(response);
+            });
+        })
     }
 }
 
 function tagModel(id, name) {
     this.Id = id || 0;
     this.Name = name || "Tag";
+    this.Items = [];
 }
 
 tagModel.prototype.returnValue = function() {
