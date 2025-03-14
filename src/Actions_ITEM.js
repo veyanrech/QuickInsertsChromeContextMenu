@@ -57,6 +57,8 @@ export class Items {
         //     });
         // })
 
+        console.log("GET ITEMS BY TAG ID",tag_id);
+
         return new Promise((res,rej)=>{
             chrome.runtime.sendMessage({
                 action: "GETDATA",

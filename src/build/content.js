@@ -259,6 +259,7 @@ var Items = /*#__PURE__*/function () {
       //     });
       // })
 
+      console.log("GET ITEMS BY TAG ID", tag_id);
       return new Promise(function (res, rej) {
         chrome.runtime.sendMessage({
           action: "GETDATA",
